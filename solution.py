@@ -1,12 +1,15 @@
-import sys
-import math
+class FileReader:
 
-a = int(sys.argv[1])
-b = int(sys.argv[2])
-c = int(sys.argv[3])
+    def __init__(self, path_to_file):
+        self.path = path_to_file
 
-x = (-b + math.sqrt(b**2 - 4*a*c))/(2*a)
-print(int(x))
-x = (-b - math.sqrt(b**2 - 4*a*c))/(2*a)
-print(int(x))
+    def read(self):
+        try:
+            with open(self.path, 'r') as f:
+                return f.read()
+        except FileNotFoundError as e:
+            return ""
 
+
+if __name__ == '__main__':
+    pass
