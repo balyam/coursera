@@ -5,10 +5,14 @@ import csv
 class CarBase:
 
     def __init__(self, car_type, photo_file_name, brand, carrying):
-        self.car_type = car_type
-        self.photo_file_name = photo_file_name
-        self.brand = brand
-        self.carrying = carrying
+        try:
+            self.car_type = car_type
+            self.photo_file_name = photo_file_name
+            self.brand = brand
+            self.carrying = carrying
+        except Exception as e:
+            print(e)
+
 
     def get_photo_file_ext(self):
         path = os.path.splitext(self.photo_file_name)
@@ -18,8 +22,12 @@ class CarBase:
 class Car(CarBase):
 
     def __init__(self, car_type, photo_file_name, brand, carrying, passenger_seats_count):
-        CarBase.__init__(self, car_type, photo_file_name, brand, carrying)
-        self.passenger_seats_count = passenger_seats_count
+        try:
+            CarBase.__init__(self, car_type, photo_file_name, brand, carrying)
+            self.passenger_seats_count = passenger_seats_count
+        except Exception as e:
+
+            print(e)
 
 
 class Truck(CarBase):
@@ -54,8 +62,20 @@ def get_car_list(csv_filename):
         reader = csv.DictReader(csv_fd, delimiter=';')
         next(reader)  # пропускаем заголовок
         for row in reader:
-            print(row)
+            try:
+                if row['car_type'] == 'car':
+                    car_list.append(Car(row['car_type'], row['photo_file_name'], row['brand'],
+                                        row['carrying'], row['passenger_seats_count']))
+                elif row['car_type'] == 'truck':
+                    car_list.append(Truck(row['car_type'], row['photo_file_name'], row['brand'],
+                                        row['carrying'], row['body_whl']))
+                elif row['car_type'] == 'spec_machine':
+                    car_list.append(SpecMachine(row['car_type'], row['photo_file_name'], row['brand'],
+                                          row['carrying'], row['extra']))
+            except IndexError as e:
+                print(e)
     return car_list
+
 
 if __name__ == '__main__':
     pass
