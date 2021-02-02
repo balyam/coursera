@@ -8,7 +8,10 @@ class CarBase:
         try:
             self.photo_file_name = photo_file_name
             self.brand = brand
-            self.carrying = float(carrying)
+            if not carrying.isspace():
+                self.carrying = float(carrying)
+            else:
+                raise Exception
         except Exception as e:
             print(e)
 
@@ -22,7 +25,7 @@ class CarBase:
 
 class Car(CarBase):
 
-    def __init__(self, brand, photo_file_name,  carrying, passenger_seats_count):
+    def __init__(self, brand, photo_file_name, carrying, passenger_seats_count):
         try:
             CarBase.__init__(self, brand, photo_file_name, carrying)
             self.car_type = 'car'
@@ -71,7 +74,10 @@ def get_car_list(csv_filename):
     if is_not_empty_file(csv_filename):
         with open(csv_filename) as csv_fd:
             reader = csv.DictReader(csv_fd, delimiter=';')
-            next(reader)  # пропускаем заголовок
+            try:
+                next(reader)
+            except StopIteration as e:
+                return []
             for row in reader:
                 try:
                     if row['car_type'] == 'car':
