@@ -8,12 +8,10 @@ class CarBase:
         try:
             self.photo_file_name = photo_file_name
             self.brand = brand
-            if not carrying.isspace():
-                self.carrying = float(carrying)
-            else:
-                raise Exception
+            self.carrying = float(carrying)
         except Exception as e:
             print(e)
+            return
 
     def get_photo_file_ext(self):
         path = os.path.splitext(self.photo_file_name)
@@ -32,6 +30,7 @@ class Car(CarBase):
             self.passenger_seats_count = int(passenger_seats_count)
         except Exception as e:
             print(e)
+            return
 
 
 class Truck(CarBase):
@@ -69,28 +68,55 @@ def is_not_empty_file(file):
     return os.stat(file).st_size > 0
 
 
-def get_car_list(csv_filename):
-    car_list = []
-    if is_not_empty_file(csv_filename):
-        with open(csv_filename) as csv_fd:
+def validate_rows(file):
+    result = []
+    obj = {}
+    if is_not_empty_file(file):
+        with open(file) as csv_fd:
             reader = csv.DictReader(csv_fd, delimiter=';')
             try:
                 next(reader)
             except StopIteration as e:
+                # TODO
                 return []
             for row in reader:
                 try:
-                    if row['car_type'] == 'car':
-                        car_list.append(Car(photo_file_name=row['photo_file_name'], brand=row['brand'],
-                                            carrying=row['carrying'], passenger_seats_count=row['passenger_seats_count']))
-                    elif row['car_type'] == 'truck':
-                        car_list.append(Truck(photo_file_name=row['photo_file_name'], brand=row['brand'],
-                                              carrying=row['carrying'], body_whl=row['body_whl']))
-                    elif row['car_type'] == 'spec_machine':
-                        car_list.append(SpecMachine(photo_file_name=row['photo_file_name'], brand=row['brand'],
-                                                    carrying=row['carrying'], extra=row['extra']))
-                except IndexError as e:
+                    obj['car_type'] = row['car_type']
+                    obj['photo_file_name'] = row['photo_file_name']
+                    obj['brand'] = row['brand']
+                    obj['carrying'] = float(row['carrying'])
+                    obj['passenger_seats_count'] = row['passenger_seats_count']
+                    obj['body_whl'] = row['body_whl']
+                    obj['extra'] = row['extra']
+                    result.append(obj)
+                except Exception as e:
                     print(e)
+    return result
+
+
+def get_car_list(csv_filename):
+    car_list = []
+    # if is_not_empty_file(csv_filename):
+    #     with open(csv_filename) as csv_fd:
+    #         reader = csv.DictReader(csv_fd, delimiter=';')
+    #         try:
+    #             next(reader)
+    #         except StopIteration as e:
+    #             return []
+    result = validate_rows(csv_filename)
+    for row in result:
+        try:
+            if row['car_type'] == 'car':
+                car_list.append(Car(photo_file_name=row['photo_file_name'], brand=row['brand'],
+                                    carrying=row['carrying'], passenger_seats_count=row['passenger_seats_count']))
+            elif row['car_type'] == 'truck':
+                car_list.append(Truck(photo_file_name=row['photo_file_name'], brand=row['brand'],
+                                      carrying=row['carrying'], body_whl=row['body_whl']))
+            elif row['car_type'] == 'spec_machine':
+                car_list.append(SpecMachine(photo_file_name=row['photo_file_name'], brand=row['brand'],
+                                            carrying=row['carrying'], extra=row['extra']))
+        except (Exception, IndexError) as e:
+            print(e)
     return car_list
 
 
