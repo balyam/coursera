@@ -35,8 +35,8 @@ class Car(CarBase):
 
 class Truck(CarBase):
 
-    def __init__(self, photo_file_name, brand, carrying, body_whl):
-        CarBase.__init__(self, photo_file_name, brand, carrying)
+    def __init__(self, brand, photo_file_name, carrying, body_whl):
+        CarBase.__init__(self, brand, photo_file_name, carrying)
         self.car_type = 'truck'
         try:
             whl = body_whl.split("x")
@@ -58,8 +58,8 @@ class Truck(CarBase):
 
 class SpecMachine(CarBase):
 
-    def __init__(self, photo_file_name, brand, carrying, extra):
-        CarBase.__init__(self, photo_file_name, brand, carrying)
+    def __init__(self, brand, photo_file_name, carrying, extra):
+        CarBase.__init__(self, brand, photo_file_name, carrying)
         self.car_type = 'spec_machine'
         self.extra = extra
 
@@ -68,27 +68,32 @@ def is_not_empty_file(file):
     return os.stat(file).st_size > 0
 
 
+def is_empty_string(value):
+    if not len(value.strip()):
+        raise Exception
+    else:
+        return value
+
+
 def validate_rows(file):
     result = []
-    obj = {}
     if is_not_empty_file(file):
         with open(file) as csv_fd:
             reader = csv.DictReader(csv_fd, delimiter=';')
             try:
-                next(reader)
+                pass
             except StopIteration as e:
                 # TODO
                 return []
             for row in reader:
                 try:
-                    obj['car_type'] = row['car_type']
-                    obj['photo_file_name'] = row['photo_file_name']
-                    obj['brand'] = row['brand']
-                    obj['carrying'] = float(row['carrying'])
-                    obj['passenger_seats_count'] = row['passenger_seats_count']
-                    obj['body_whl'] = row['body_whl']
-                    obj['extra'] = row['extra']
+                    obj = {'car_type': is_empty_string(row['car_type']), 'photo_file_name': is_empty_string(row['photo_file_name']),
+                           'brand': is_empty_string(row['brand']), 'carrying': float(row['carrying']),
+                           'passenger_seats_count': row['passenger_seats_count'],
+                           'body_whl': row['body_whl'],
+                           'extra': row['extra']}
                     result.append(obj)
+                    print(result)
                 except Exception as e:
                     print(e)
     return result
@@ -96,24 +101,17 @@ def validate_rows(file):
 
 def get_car_list(csv_filename):
     car_list = []
-    # if is_not_empty_file(csv_filename):
-    #     with open(csv_filename) as csv_fd:
-    #         reader = csv.DictReader(csv_fd, delimiter=';')
-    #         try:
-    #             next(reader)
-    #         except StopIteration as e:
-    #             return []
     result = validate_rows(csv_filename)
     for row in result:
         try:
             if row['car_type'] == 'car':
-                car_list.append(Car(photo_file_name=row['photo_file_name'], brand=row['brand'],
+                car_list.append(Car(brand=row['brand'], photo_file_name=row['photo_file_name'],
                                     carrying=row['carrying'], passenger_seats_count=row['passenger_seats_count']))
             elif row['car_type'] == 'truck':
-                car_list.append(Truck(photo_file_name=row['photo_file_name'], brand=row['brand'],
+                car_list.append(Truck(brand=row['brand'], photo_file_name=row['photo_file_name'],
                                       carrying=row['carrying'], body_whl=row['body_whl']))
             elif row['car_type'] == 'spec_machine':
-                car_list.append(SpecMachine(photo_file_name=row['photo_file_name'], brand=row['brand'],
+                car_list.append(SpecMachine(brand=row['brand'], photo_file_name=row['photo_file_name'],
                                             carrying=row['carrying'], extra=row['extra']))
         except (Exception, IndexError) as e:
             print(e)
