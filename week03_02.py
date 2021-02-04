@@ -30,7 +30,6 @@ class Car(CarBase):
             self.passenger_seats_count = int(passenger_seats_count)
         except Exception as e:
             print(e)
-            return
 
 
 class Truck(CarBase):
@@ -75,6 +74,15 @@ def is_empty_string(value):
         return value
 
 
+def check_photo_path(photo):
+    allow = ['.jpeg', '.png', '.jpg', '.gif']
+    path = os.path.splitext(photo)
+    if path[1] in allow:
+        return photo
+    else:
+        raise Exception
+
+
 def validate_rows(file):
     result = []
     if is_not_empty_file(file):
@@ -87,7 +95,9 @@ def validate_rows(file):
                 return []
             for row in reader:
                 try:
-                    obj = {'car_type': is_empty_string(row['car_type']), 'photo_file_name': is_empty_string(row['photo_file_name']),
+                    check_photo_path(row['photo_file_name'])
+                    obj = {'car_type': is_empty_string(row['car_type']),
+                           'photo_file_name': is_empty_string(row['photo_file_name']),
                            'brand': is_empty_string(row['brand']), 'carrying': float(row['carrying']),
                            'passenger_seats_count': row['passenger_seats_count'],
                            'body_whl': row['body_whl'],
@@ -105,12 +115,16 @@ def get_car_list(csv_filename):
     for row in result:
         try:
             if row['car_type'] == 'car':
+                is_empty_string(row['passenger_seats_count'])
                 car_list.append(Car(brand=row['brand'], photo_file_name=row['photo_file_name'],
                                     carrying=row['carrying'], passenger_seats_count=row['passenger_seats_count']))
+                print(os.path.splitext(row['photo_file_name']))
+                print(type(check_photo_path(row['photo_file_name'])))
             elif row['car_type'] == 'truck':
                 car_list.append(Truck(brand=row['brand'], photo_file_name=row['photo_file_name'],
                                       carrying=row['carrying'], body_whl=row['body_whl']))
             elif row['car_type'] == 'spec_machine':
+                is_empty_string(row['extra'])
                 car_list.append(SpecMachine(brand=row['brand'], photo_file_name=row['photo_file_name'],
                                             carrying=row['carrying'], extra=row['extra']))
         except (Exception, IndexError) as e:
