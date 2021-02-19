@@ -132,7 +132,6 @@ def get_car_list(csv_filename):
     return car_list
 
 
-
 # if __name__ == '__main__':
 #     pass
 
