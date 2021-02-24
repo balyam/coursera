@@ -5,12 +5,13 @@ import time
 
 class Client:
     def __init__(self, conn, port, timeout=None):
-        with socket.create_connection((conn, port), timeout) as sock:
-            self.sock = sock
-            self.sock.settimeout(0)
+        self.sock = socket.create_connection((conn, port), timeout)
+        # with socket.create_connection((conn, port), timeout) as sock:
+        #     self.sock = sock
+        self.sock.settimeout(0)
 
     def get(self, metric):
-        msg = metric.encode()
+        msg = metric.encode('utf-8')
         self.sock.sendall(msg)
         recieved_data = []
         while True:
