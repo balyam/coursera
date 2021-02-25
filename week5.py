@@ -5,31 +5,36 @@ import time
 class Client:
     def __init__(self, conn, port, timeout=None):
         self.sock = socket.create_connection((conn, port), timeout)
-        # with socket.create_connection((conn, port), timeout) as sock:
-        #     self.sock = sock
-        # self.sock.settimeout(0)
 
     def get(self, metric):
         msg = f"get {metric}\n"
         self.sock.sendall(msg.encode('utf-8'))
-        recieved_data = {}
         response = self.sock.recv(1024).decode('utf-8')
         arr = response.split("\n")
         if arr[0] == 'ok':
             del arr[0]
-            # arr.remove('')
-            print(arr)
-
-            for elt in response:
-                tmp_arr = elt.split()
-                recieved_data[tmp_arr[0]] = (tmp_arr[2], tmp_arr[1])
-        return recieved_data
+            return self.reformat(arr)
 
     def put(self, metric, metric_value, timestamp=int(time.time())):
         raise ClientException
 
     def close(self):
         self.sock.close()
+
+    @staticmethod
+    def reformat(data: list) -> dict:
+        recieved_data = {}
+        for elt in data:
+            try:
+                rsp_str = elt.split(' ')
+                if rsp_str[0] in recieved_data:
+                    recieved_data[rsp_str[0]].append((int(rsp_str[2]), float(rsp_str[1])))
+                else:
+                    recieved_data[rsp_str[0]] = [(int(rsp_str[2]), float(rsp_str[1]))]
+                    print(recieved_data)
+            except IndexError:
+                pass
+        return recieved_data
 
 
 class ClientException(socket.error):

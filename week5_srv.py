@@ -10,7 +10,18 @@ with socket.socket() as sock:
 
     # переменная response хранит строку возвращаемую сервером, если вам для
     # тестирования клиента необходим другой ответ, измените ее
-    response = b'ok\npalm.cpu 10.5 1501864247\neardrum.cpu 15.3 1501864259\n\n'
+    rsp_list = [
+        b'ok\npalm.cpu 10.5 1501864247\neardrum.cpu 15.3 1501864259\n\n',
+        b'ok\npalm.cpu 11.5 2501864247\neardrum.cpu 15.3 1501864259\n\n',
+        b'ok\npalm.cpu 12.5 2501864247\neardrum.cpu 15.3 1501864259\n\n',
+        b'ok\npalm.cpu 14.5\neardrum.cpu 15.3 1501864259\n\n'
+    ]
+
+    def dynamic_rsp(vl):
+        for i in vl:
+            yield i
+
+    response = dynamic_rsp(rsp_list)
 
     with conn:
         print('Соединение установлено:', addr)
@@ -20,6 +31,7 @@ with socket.socket() as sock:
                 break
             request = data.decode('utf-8')
             print(f'Получен запрос: {ascii(request)}')
-            print(f'Отправлен ответ {ascii(response.decode("utf-8"))}')
-            conn.sendall(response)
+            print(response)
+            print(f'Отправлен ответ {ascii(response)}')
+            conn.sendall(next(response))
 
