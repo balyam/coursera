@@ -1,4 +1,3 @@
-import os
 import socket
 import time
 
@@ -8,22 +7,29 @@ class Client:
         self.sock = socket.create_connection((conn, port), timeout)
         # with socket.create_connection((conn, port), timeout) as sock:
         #     self.sock = sock
-        self.sock.settimeout(0)
+        # self.sock.settimeout(0)
 
     def get(self, metric):
-        msg = metric.encode('utf-8')
-        self.sock.sendall(msg)
-        recieved_data = []
-        while True:
-            response = self.sock.recv(1024)
-            if not response:
-                print(recieved_data)
-                break
-            else:
-                recieved_data.append(response.decode('utf-8'))
+        msg = f"get {metric}\n"
+        self.sock.sendall(msg.encode('utf-8'))
+        recieved_data = {}
+        response = self.sock.recv(1024).decode('utf-8')
+        arr = response.split("\n")
+        if arr[0] == 'ok':
+            del arr[0]
+            # arr.remove('')
+            print(arr)
+
+            for elt in response:
+                tmp_arr = elt.split()
+                recieved_data[tmp_arr[0]] = (tmp_arr[2], tmp_arr[1])
+        return recieved_data
 
     def put(self, metric, metric_value, timestamp=int(time.time())):
         raise ClientException
+
+    def close(self):
+        self.sock.close()
 
 
 class ClientException(socket.error):
