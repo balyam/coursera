@@ -13,10 +13,20 @@ class Client:
         arr = response.split("\n")
         if arr[0] == 'ok':
             del arr[0]
+            del arr[-2:]
+            print(arr)
             return self.reformat(arr)
+        raise ClientError
 
-    def put(self, metric, metric_value, timestamp=int(time.time())):
-        raise ClientException
+    def put(self, metric, metric_value, timestamp=None):
+        if timestamp is None:
+            timestamp = int(time.time())
+        msg = f"put {metric} {metric_value} {timestamp}\n"
+        self.sock.sendall(msg.encode('utf-8'))
+        response = self.sock.recv(1024).decode('utf-8')
+        arr = response.split("\n")
+        if arr[0] == 'error':
+            raise ClientError
 
     def close(self):
         self.sock.close()
@@ -31,12 +41,13 @@ class Client:
                     recieved_data[rsp_str[0]].append((int(rsp_str[2]), float(rsp_str[1])))
                 else:
                     recieved_data[rsp_str[0]] = [(int(rsp_str[2]), float(rsp_str[1]))]
-                    print(recieved_data)
-            except IndexError:
-                pass
+            except (IndexError, ValueError):
+                raise ClientError
+        for key, value in recieved_data.items():
+            value.sort(key=lambda tup: tup[0])
         return recieved_data
 
 
-class ClientException(socket.error):
+class ClientError(socket.error):
     def __str__(self):
         return f"<ClientException> message"

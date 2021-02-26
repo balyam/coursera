@@ -11,7 +11,9 @@ with socket.socket() as sock:
     # переменная response хранит строку возвращаемую сервером, если вам для
     # тестирования клиента необходим другой ответ, измените ее
     rsp_list = [
-        b'ok\npalm.cpu 10.5 1501864247\neardrum.cpu 15.3 1501864259\n\n',
+        b'ok\npalm.cpu 10.5 1501864247\neardrum.cpu 15.3 1501864259\npalm.cpu 8.3 1501864340\neardrum.memory 200 1501861111\n\n',
+        b'ok\npalm.cpu 10.5 1501864247\neardrum.cpu 15.3 1501864259\npalm.cpu 20.3 1501864259\n\n',
+        b'error\nwrong command\n\n',
         b'ok\npalm.cpu 11.5 2501864247\neardrum.cpu 15.3 1501864259\n\n',
         b'ok\npalm.cpu 12.5 2501864247\neardrum.cpu 15.3 1501864259\n\n',
         b'ok\npalm.cpu 14.5\neardrum.cpu 15.3 1501864259\n\n'
